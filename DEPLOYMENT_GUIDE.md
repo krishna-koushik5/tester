@@ -1,12 +1,24 @@
-# Deployment Guide - Competitor Analyzer
+# Deployment Guide - Instagram Competitor Analyzer
 
-## ⚠️ IMPORTANT: ToS & Legal Considerations
+## 🚀 Deploy to Render (Recommended - Free!)
 
-This app uses:
-- **yt-dlp**: May violate YouTube ToS (but widely used, low enforcement risk for public data)
-- **instaloader**: Violates Instagram ToS (high risk of blocks)
+**Render is perfect for this app:**
+- ✅ **100-minute timeout** (your app needs ~30-90 seconds)
+- ✅ **Free tier available** (750 hours/month)
+- ✅ **Already configured** (`render.yaml` and `Procfile` ready)
+- ✅ **Auto-deploys** on every push
 
-**You can still host it**, but understand the risks.
+### Quick Steps:
+
+1. **Go to:** https://render.com
+2. **Sign up** with GitHub
+3. **Click "New +" → "Web Service"**
+4. **Connect repo:** `krishna-koushik5/tester`
+5. **Render auto-detects** Flask from `render.yaml`
+6. **Click "Create Web Service"**
+7. **Done!** Get your URL
+
+**No environment variables needed - works out of the box!**
 
 ---
 
