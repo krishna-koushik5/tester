@@ -86,6 +86,8 @@ class CompetitorAnalyzer:
         start_time = time.time()
         try:
             print(f"Fetching posts from @{username}...")
+            # Add delay before fetching to avoid rate limiting
+            time.sleep(3)  # 3 second delay before each account fetch
             profile = instaloader.Profile.from_username(self.loader.context, username)
             print(f"   Profile loaded for @{username}, fetching posts...")
 
@@ -385,9 +387,9 @@ class CompetitorAnalyzer:
             print(f"{'='*60}")
 
             # Add delay between accounts to avoid rate limiting (except for first account)
-            # Reduced delay for faster processing on Vercel (2 seconds instead of 5)
+            # Increased delay to avoid Instagram rate limiting (401 errors)
             if i > 0:
-                delay_seconds = 2  # 2 second delay between accounts (reduced for Vercel timeout)
+                delay_seconds = 15  # 15 second delay between accounts to avoid Instagram blocking
                 print(f"⏳ Waiting {delay_seconds} seconds before processing next account...")
                 time.sleep(delay_seconds)
 
@@ -409,12 +411,12 @@ class CompetitorAnalyzer:
                 print(f"   Error details: {traceback.format_exc()}")
                 failed_accounts.append(f"{account} (error: {str(e)[:50]}...)")
 
-            # Add a small delay between accounts to avoid rate limiting
-            # Minimal delay for faster processing on Vercel
+            # Add a delay between accounts to avoid rate limiting
+            # Increased delay to prevent Instagram 401 errors
             if i < len(self.competitor_accounts) - 1:
                 import time
 
-                delay = 1  # Reduced to 1 second for faster processing
+                delay = 10  # 10 second delay to avoid Instagram rate limiting
                 print(f"   Waiting {delay} seconds before next account...")
                 time.sleep(delay)
 
