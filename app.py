@@ -18,8 +18,15 @@ def get_analyzer():
     global analyzer
     # Always create a new instance to ensure accounts are reloaded from file
     # This ensures we pick up any changes to competitor_accounts.json
-    analyzer = CompetitorAnalyzer()
-    return analyzer
+    try:
+        analyzer = CompetitorAnalyzer()
+        return analyzer
+    except Exception as e:
+        print(f"❌ Error creating analyzer: {str(e)}")
+        import traceback
+
+        print(traceback.format_exc())
+        raise
 
 
 @app.route("/")
@@ -32,14 +39,30 @@ def index():
 def analyze():
     """Run analysis and return results"""
     try:
+        print("=" * 60)
         print("API: Starting analysis...")
+        print("=" * 60)
+
+        # Get analyzer instance
         analyzer_instance = get_analyzer()
-        print(f"API: Processing {len(analyzer_instance.competitor_accounts)} accounts")
+        print(f"✅ Analyzer instance created")
+        print(
+            f"📋 Loaded {len(analyzer_instance.competitor_accounts)} accounts: {analyzer_instance.competitor_accounts}"
+        )
+
+        # Run analysis
+        print(f"⏳ Starting competitor analysis...")
         results = analyzer_instance.analyze_competitors()
-        print("API: Analysis complete, returning results")
+        print("✅ Analysis complete!")
+
+        # Extract results
         reels = results.get("reels", [])
         posts = results.get("posts", [])
         all_posts = results.get("all", [])
+
+        print(
+            f"📊 Results: {len(reels)} reels, {len(posts)} posts, {len(all_posts)} total posts"
+        )
 
         # Get summary statistics - always return stats even if empty
         stats = {
@@ -114,11 +137,34 @@ def analyze():
         import traceback
 
         error_details = traceback.format_exc()
-        print(f"Error in /api/analyze: {str(e)}")
-        print(f"Traceback: {error_details}")
+        print("=" * 60)
+        print(f"❌ ERROR in /api/analyze: {str(e)}")
+        print("=" * 60)
+        print(f"Full traceback:\n{error_details}")
+        print("=" * 60)
+
+        # Return error with more details for debugging
         return (
             jsonify(
-                {"success": False, "error": str(e), "error_details": error_details}
+                {
+                    "success": False,
+                    "error": str(e),
+                    "error_details": error_details,
+                    "reels": [],
+                    "posts": [],
+                    "all": [],
+                    "stats": {
+                        "total_posts": 0,
+                        "average_engagement": 0,
+                        "top_engagement": 0,
+                        "accounts_analyzed": 0,
+                        "carousel_count": 0,
+                        "photo_count": 0,
+                        "reel_count": 0,
+                        "video_count": 0,
+                        "total_views": 0,
+                    },
+                }
             ),
             500,
         )

@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: competitor-analyzer
+    name: instagram-competitor-analyzer
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --timeout 300 --workers 2 --threads 4
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-    plan: free  # Or starter for better performance
+    plan: free  # Free tier supports long-running requests
     healthCheckPath: /
 

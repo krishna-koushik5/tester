@@ -19,6 +19,23 @@ if sys.platform == "win32":
 class CompetitorAnalyzer:
     def __init__(self, accounts_file: str = "competitor_accounts.json"):
         """Initialize the analyzer with competitor accounts"""
+        import os
+        
+        # Get absolute path to accounts file (for serverless/deployed environments)
+        if not os.path.isabs(accounts_file):
+            # Try to find the file in the current directory or parent
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            accounts_path = os.path.join(script_dir, accounts_file)
+            if os.path.exists(accounts_path):
+                accounts_file = accounts_path
+            else:
+                # Try parent directory
+                parent_path = os.path.join(os.path.dirname(script_dir), accounts_file)
+                if os.path.exists(parent_path):
+                    accounts_file = parent_path
+        
+        print(f"📁 Loading accounts from: {accounts_file}")
+        
         self.loader = instaloader.Instaloader(
             download_videos=False,
             download_video_thumbnails=False,
@@ -368,8 +385,9 @@ class CompetitorAnalyzer:
             print(f"{'='*60}")
 
             # Add delay between accounts to avoid rate limiting (except for first account)
+            # Reduced delay for faster processing on Vercel (2 seconds instead of 5)
             if i > 0:
-                delay_seconds = 5  # 5 second delay between accounts
+                delay_seconds = 2  # 2 second delay between accounts (reduced for Vercel timeout)
                 print(f"⏳ Waiting {delay_seconds} seconds before processing next account...")
                 time.sleep(delay_seconds)
 
@@ -392,11 +410,11 @@ class CompetitorAnalyzer:
                 failed_accounts.append(f"{account} (error: {str(e)[:50]}...)")
 
             # Add a small delay between accounts to avoid rate limiting
-            # Reduce delay for many accounts to speed up
+            # Minimal delay for faster processing on Vercel
             if i < len(self.competitor_accounts) - 1:
                 import time
 
-                delay = 1.5 if len(self.competitor_accounts) > 5 else 2
+                delay = 1  # Reduced to 1 second for faster processing
                 print(f"   Waiting {delay} seconds before next account...")
                 time.sleep(delay)
 
