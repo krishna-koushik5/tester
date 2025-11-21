@@ -44,6 +44,24 @@ class CompetitorAnalyzer:
             save_metadata=False,
             compress_json=False,
         )
+        
+        # Try to login to Instagram to avoid rate limiting (optional)
+        # Set INSTAGRAM_USERNAME and INSTAGRAM_PASSWORD as environment variables
+        instagram_username = os.environ.get("INSTAGRAM_USERNAME")
+        instagram_password = os.environ.get("INSTAGRAM_PASSWORD")
+        
+        if instagram_username and instagram_password:
+            try:
+                print(f"🔐 Attempting to login to Instagram as @{instagram_username}...")
+                self.loader.login(instagram_username, instagram_password)
+                print("✅ Successfully logged in to Instagram!")
+            except Exception as e:
+                print(f"⚠️  Could not login to Instagram: {str(e)}")
+                print("   Continuing without login (may get rate limited)...")
+        else:
+            print("ℹ️  No Instagram credentials provided - using anonymous access")
+            print("   ⚠️  Warning: Instagram blocks anonymous requests from server IPs!")
+        
         self.accounts_file = accounts_file
         self.competitor_accounts = self.load_accounts()
 
