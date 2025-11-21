@@ -1,0 +1,56 @@
+{
+  "channels": [
+    {
+      "name": "Think School",
+      "url": "https://www.youtube.com/@ThinkSchool",
+      "search_terms": []
+    },
+    {
+      "name": "Him-eesh Madaan",
+      "url": "https://www.youtube.com/@HimeeshMadaan",
+      "search_terms": []
+    },
+    {
+      "name": "SparX by Mukesh Bansal",
+      "url": "https://www.youtube.com/@SparXbyMukeshBansal",
+      "search_terms": []
+    },
+    {
+      "name": "Indian Silicon Valley",
+      "url": "https://www.youtube.com/c/IndianSiliconValley",
+      "search_terms": []
+    },
+    {
+      "name": "Varun Mayya",
+      "url": "https://www.youtube.com/@VarunMayya",
+      "search_terms": []
+    },
+    {
+      "name": "Nikhil Kamath",
+      "url": "https://www.youtube.com/@nikhil.kamath",
+      "search_terms": []
+    },
+    {
+      "name": "Raj Shamani",
+      "url": "https://www.youtube.com/@rajshamani",
+      "search_terms": []
+    },
+    {
+      "name": "Finance With Sharan",
+      "url": "https://www.youtube.com/@financewithsharan",
+      "search_terms": []
+    }
+  ],
+  "settings": {
+    "transcription": {
+      "method": "youtube",
+      "api_key": ""
+    },
+    "summarization": {
+      "method": "gemini",
+      "api_key": "AIzaSyAAWop26_JSoS0XpagyemDQiuADt__DYpg",
+      "model": "gemini-1.5-flash"
+    },
+    "date_range_days": 7
+  }
+}

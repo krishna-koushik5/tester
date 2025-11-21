@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Competitor Analyzer</title>
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loading.active {
+            display: inline-block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .posts-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .post-username {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .post-rank {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .post-metrics {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-icon {
+            font-size: 1.2em;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .post-type {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .type-carousel {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .type-photo {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .type-video {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .post-caption {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .post-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: color 0.2s;
+        }
+
+        .post-link:hover {
+            color: #764ba2;
+        }
+
+        .post-date {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            color: #666;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .carousel-info {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #1976d2;
+        }
+
+        .section-header {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin: 30px 0 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header h2 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.8em;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📊 Instagram Competitor Analyzer</h1>
+                <p class="subtitle">Analyze top performing posts from your competitors in the last week</p>
+                <div class="controls">
+                    <button id="analyzeBtn" onclick="runAnalysis()">🔍 Analyze Competitors</button>
+                    <span class="loading" id="loading">⏳ Analyzing posts... This may take 30-90 seconds for multiple accounts.</span>
+                </div>
+            </div>
+
+            <!-- Instagram Results -->
+            <div id="instagram-results">
+                <div id="stats" class="stats" style="display: none;"></div>
+                <div id="reels-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>🎬 Top 10 Performing Reels</h2>
+                        <p class="section-subtitle">Ranked by views (or likes if views unavailable)</p>
+                    </div>
+                    <div id="reels" class="posts-container"></div>
+                </div>
+                <div id="posts-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>📸 Top 10 Performing Posts</h2>
+                        <p class="section-subtitle">Ranked by engagement (likes + comments)</p>
+                    </div>
+                    <div id="posts" class="posts-container"></div>
+                </div>
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+        </div>
+
+        <script>
+        async function runAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const postsDiv = document.getElementById('posts');
+            const reelsDiv = document.getElementById('reels');
+            const statsDiv = document.getElementById('stats');
+            const reelsSection = document.getElementById('reels-section');
+            const postsSection = document.getElementById('posts-section');
+
+            // Reset UI
+            btn.disabled = true;
+            loading.classList.add('active');
+            errorDiv.style.display = 'none';
+            postsDiv.innerHTML = '';
+            reelsDiv.innerHTML = '';
+            statsDiv.style.display = 'none';
+            reelsSection.style.display = 'none';
+            postsSection.style.display = 'none';
+
+            try {
+                console.log('Starting analysis...');
+                
+                // Add timeout to prevent hanging (10 minutes for many accounts)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                }, 600000); // 10 minute timeout
+                
+                const response = await fetch('/api/analyze', {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+
+                console.log('Stats:', data.stats);
+                console.log('Reels:', data.reels);
+                console.log('Posts:', data.posts);
+                console.log('All posts:', data.all);
+
+                // Always display stats
+                displayStats(data.stats || {});
+                
+                // Display reels and posts
+                displayReels(data.reels || []);
+                displayPosts(data.posts || []);
+                
+                console.log('All display functions called');
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                let errorMessage = error.message;
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Analysis timed out after 10 minutes. With many accounts, this can take time. Consider analyzing fewer accounts at once or wait a few minutes between analyses.';
+                }
+                
+                errorDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${errorMessage}</p>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                        Check the browser console (F12) for more details.
+                        <br>If this persists, try analyzing fewer accounts or wait a few minutes between analyses.
+                    </p>
+                `;
+                errorDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        }
+
+        function displayStats(stats) {
+            console.log('displayStats called with:', stats);
+            const statsDiv = document.getElementById('stats');
+            // Always show stats, even if empty (to show that analysis ran)
+            if (!stats) {
+                stats = {
+                    total_posts: 0,
+                    average_engagement: 0,
+                    top_engagement: 0,
+                    accounts_analyzed: 0,
+                    carousel_count: 0,
+                    photo_count: 0,
+                    reel_count: 0,
+                    video_count: 0,
+                    total_views: 0
+                };
+            }
+            
+            console.log('Rendering stats with:', stats);
+
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total_posts || 0}</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.average_engagement || 0}</div>
+                    <div class="stat-label">Avg Engagement</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.top_engagement || 0}</div>
+                    <div class="stat-label">Top Engagement</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.accounts_analyzed || 0}</div>
+                    <div class="stat-label">Accounts Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.carousel_count || 0}</div>
+                    <div class="stat-label">Carousel Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.photo_count || 0}</div>
+                    <div class="stat-label">Photo Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.reel_count || 0}</div>
+                    <div class="stat-label">Reels</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.video_count || 0}</div>
+                    <div class="stat-label">Video Posts</div>
+                </div>
+                ${stats.total_views > 0 ? `
+                <div class="stat-card">
+                    <div class="stat-value">${(stats.total_views || 0).toLocaleString()}</div>
+                    <div class="stat-label">Total Views</div>
+                </div>
+                ` : ''}
+            `;
+            statsDiv.style.display = 'grid';
+        }
+
+        function displayReels(reels) {
+            const reelsDiv = document.getElementById('reels');
+            const reelsSection = document.getElementById('reels-section');
+            
+            if (!reels || reels.length === 0) {
+                reelsSection.style.display = 'none';
+                return;
+            }
+
+            reelsSection.style.display = 'block';
+            reelsDiv.innerHTML = reels.map((post, index) => {
+                return createPostCard(post, index, true);
+            }).join('');
+        }
+
+        function displayPosts(posts) {
+            console.log('displayPosts called with:', posts);
+            const postsDiv = document.getElementById('posts');
+            const postsSection = document.getElementById('posts-section');
+            
+            if (!posts || posts.length === 0) {
+                console.log('No posts to display, hiding section');
+                postsSection.style.display = 'none';
+                return;
+            }
+
+            console.log(`Displaying ${posts.length} posts`);
+            postsSection.style.display = 'block';
+            try {
+                postsDiv.innerHTML = posts.map((post, index) => {
+                    return createPostCard(post, index, false);
+                }).join('');
+                console.log('Posts displayed successfully');
+            } catch (error) {
+                console.error('Error displaying posts:', error);
+            }
+        }
+
+        function createPostCard(post, index, isReel) {
+            try {
+                // Determine post type
+                let postType, typeClass, typeLabel;
+                if (post.is_carousel) {
+                    postType = 'carousel';
+                    typeClass = 'type-carousel';
+                    typeLabel = `Carousel (${post.carousel_metrics?.slide_count || 'N/A'} slides)`;
+                } else if (post.is_reel) {
+                    postType = 'reel';
+                    typeClass = 'type-video';
+                    typeLabel = 'Reel';
+                } else if (post.is_video) {
+                    postType = 'video';
+                    typeClass = 'type-video';
+                    typeLabel = 'Video';
+                } else {
+                    postType = 'photo';
+                    typeClass = 'type-photo';
+                    typeLabel = 'Photo';
+                }
+
+            // For reels, show performance metric (views or likes)
+            const performanceMetric = isReel && post.reel_performance ? post.reel_performance : null;
+            const hasViews = post.views !== null && post.views !== undefined;
+
+            // Ensure all required fields exist
+            const safePost = {
+                username: post.username || 'unknown',
+                date: post.date || 'Unknown date',
+                likes: post.likes || 0,
+                comments: post.comments || 0,
+                engagement: post.engagement || 0,
+                caption: post.caption || 'No caption',
+                post_url: post.post_url || '#',
+                is_carousel: post.is_carousel || false,
+                is_reel: post.is_reel || false,
+                is_video: post.is_video || false,
+                views: post.views,
+                carousel_metrics: post.carousel_metrics || {}
+            };
+
+            return `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div>
+                            <span class="post-rank">#${index + 1}</span>
+                            <span class="post-username">@${safePost.username}</span>
+                        </div>
+                        <div class="post-type ${typeClass}">${typeLabel}</div>
+                    </div>
+                    <div class="post-date">📅 ${safePost.date}</div>
+                    <div class="post-metrics">
+                        <div class="metric">
+                            <span class="metric-icon">❤️</span>
+                            <span class="metric-value">${(safePost.likes || 0).toLocaleString()}</span>
+                            <span class="metric-label">likes</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-icon">💬</span>
+                            <span class="metric-value">${(safePost.comments || 0).toLocaleString()}</span>
+                            <span class="metric-label">comments</span>
+                        </div>
+                        ${hasViews ? `
+                        <div class="metric">
+                            <span class="metric-icon">👁️</span>
+                            <span class="metric-value">${(safePost.views || 0).toLocaleString()}</span>
+                            <span class="metric-label">views</span>
+                        </div>
+                        ` : ''}
+                        ${isReel && !hasViews && performanceMetric ? `
+                        <div class="metric" style="background: #fff3e0; padding: 8px 12px; border-radius: 8px;">
+                            <span class="metric-icon">⭐</span>
+                            <span class="metric-value" style="color: #e65100; font-weight: bold;">${(performanceMetric || 0).toLocaleString()}</span>
+                            <span class="metric-label" style="color: #e65100;">performance (likes)</span>
+                        </div>
+                        ` : ''}
+                        <div class="metric">
+                            <span class="metric-icon">📈</span>
+                            <span class="metric-value">${(safePost.engagement || 0).toLocaleString()}</span>
+                            <span class="metric-label">engagement</span>
+                        </div>
+                    </div>
+                    ${safePost.is_carousel ? `
+                        <div class="carousel-info">
+                            🎠 Carousel with ${safePost.carousel_metrics?.slide_count || 'N/A'} slides - 
+                            ${(safePost.likes || 0).toLocaleString()} total likes (shared across all slides)
+                        </div>
+                    ` : ''}
+                    ${isReel ? `
+                        <div class="carousel-info" style="background: #fff3e0; color: #e65100;">
+                            🎬 Reel ${hasViews ? `with ${(safePost.views || 0).toLocaleString()} views` : `- Performance: ${performanceMetric ? (performanceMetric || 0).toLocaleString() + ' likes' : 'N/A'}`}
+                        </div>
+                    ` : ''}
+                    <div class="post-caption">${escapeHtml(safePost.caption)}</div>
+                    <a href="${safePost.post_url}" target="_blank" class="post-link">
+                        🔗 View on Instagram →
+                    </a>
+                </div>
+            `;
+            } catch (error) {
+                console.error('Error creating post card:', error, post);
+                return `<div class="post-card"><p>Error displaying post: ${error.message}</p></div>`;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+    </body>
+</html>

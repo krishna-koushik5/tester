@@ -1,0 +1,7 @@
+instaloader>=4.10
+flask>=2.3.0
+yt-dlp>=2023.12.30
+openai>=1.0.0
+google-generativeai>=0.3.0
+gunicorn>=21.2.0
+
